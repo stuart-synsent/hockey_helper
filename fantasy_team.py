@@ -234,7 +234,6 @@ def main():
                 print("Team not optimized.")
 
         display_team(team)
-    print(team)
     choice = input("Do you want to save the team? (y/n): ")
     if choice.lower() == "y":
         save_team_to_file(team, team_file)
