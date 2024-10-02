@@ -74,16 +74,35 @@ def select_team(players, budget, positions_needed, must_include=None, exclude_pl
     return team
 
 
-def recommend_replacements(current_team, removed_player, budget_left, position, players, num_replacements=5):
+def recommend_replacements(
+    current_team, removed_player, budget_left, position, players, num_replacements=20, team=None, specific_player=None, points_type="total"
+):
     potential_replacements = players[
         (players["Name"] != removed_player)
         & (players["Pos"] == position)
         & (~players["Name"].isin([p["Name"] for p in current_team]))
         & (players["$"] <= budget_left)
     ]
-    potential_replacements = potential_replacements.sort_values(by="Total Points", ascending=False)
 
+    # are specific teams requested?
+    if team:
+        potential_replacements = potential_replacements[potential_replacements["team"].isin(team)]
+
+    # Sort by relevant metric
+    potential_replacements = potential_replacements.sort_values(by="Total Points" if points_type == "total" else "Avg", ascending=False)
+
+    # Get the best ones.
     top_replacements = potential_replacements.head(num_replacements)
+
+    # Check if a specific player is provided and we know about him.
+    if specific_player:
+        specific_player_row = players[(players["Name"] == specific_player) & (players["Pos"] == position)]
+
+        # If the specific player exists and is not already in the top replacements and if so add to the list.
+        if not specific_player_row.empty:
+            if specific_player not in top_replacements["Name"].values:
+                top_replacements = pd.concat([top_replacements, specific_player_row])
+
     return top_replacements
 
 
@@ -182,15 +201,29 @@ def main():
         else:
             print("Let's make some changes to the team!\n")
 
+
         # Choose a player to remove
         removed_player, removed_index = choose_player_to_remove(team)
 
         # Calculate remaining budget
         budget_left = budget - sum(p["$"] for p in team if p["Name"] != removed_player["Name"])
         position = removed_player["Pos"]
+        player_team = input("Do you want to filter new players by team or comma separated list of teams? (y/n): ")
+        if player_team.lower() == "y":
+            input_team = input("Enter the teams you want to filter by (E.G. NYR,SEA,VAN): ")
+            # make all caps and split by comma
+            input_team = input_team.upper()
+            input_team = input_team.split(",")
+        else:
+            input_team = None
+        specific_player = input("Do you want to include a specific player? (y/n): ")
+        if specific_player.lower() == "y":
+            specific_player = input("Enter the name of the player you want to include (WARNING can go over budget): ")
+        else:
+            specific_player = None
 
         # Recommend 5 replacements
-        replacements = recommend_replacements(team, removed_player["Name"], budget_left, position, players)
+        replacements = recommend_replacements(team, removed_player["Name"], budget_left, position, players, team=input_team, points_type=points_type, specific_player=specific_player)
 
         # Do the swap?
         choice = choose_replacement(replacements)
@@ -234,6 +267,7 @@ def main():
                 print("Team not optimized.")
 
         display_team(team)
+    print(team)
     choice = input("Do you want to save the team? (y/n): ")
     if choice.lower() == "y":
         save_team_to_file(team, team_file)
