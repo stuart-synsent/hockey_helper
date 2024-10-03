@@ -6,7 +6,7 @@ I may add this years stats as the season progresses.
 
 ```
     Usage:
-        fantasy_hockey.py [--must-include=<players>] [--exclude=<players>] [--points-type=<type>] [--minimum-games=<games>] [--budget=<budget>] [--load-team=<team>] [--noise]
+        fantasy_hockey.py [--must-include=<players>] [--exclude=<players>] [--points-type=<type>] [--minimum-games=<games>] [--budget=<budget>] [--load-team=<team>] [--replacements=<number>] [--noise]
 
     Options:
         --must-include=<players>  Comma-separated list of players to include.
@@ -15,6 +15,7 @@ I may add this years stats as the season progresses.
         --minimum-games=<games>   Minimum number of games played [default: 40].
         --budget=<budget>         Budget for the team [default: 50].
         --load-team=<team>        Load a previously saved team from the supplied file.
+        --replacements=<number>   Number of replacements to recommend [default: 20].
         --noise                   Get spammed with solver output crap.
 ```
 
