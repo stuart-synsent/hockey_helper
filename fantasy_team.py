@@ -18,7 +18,9 @@ def load_team_from_file(filename):
         return json.load(f)
 
 
-def select_team(players, budget, positions_needed, must_include=None, exclude_players=None, points_type="total", noise=False):
+def select_team(
+    players, budget, positions_needed, must_include=None, exclude_players=None, points_type="total", noise=False
+):
     # Create optimization problem
     prob = pulp.LpProblem("FantasyHockeyTeam", pulp.LpMaximize)
 
@@ -88,13 +90,23 @@ def select_team(players, budget, positions_needed, must_include=None, exclude_pl
         print("****************************************************************************************************")
         print(f"Could not find the following players: {couldnt_find}")
         print("Please check the spelling and try again.")
-        print("if they hadn't played the required number of games they won't be included in the list of available players.\n\n")
+        print(
+            "if they hadn't played the required number of games they won't be included in the list of available players.\n\n"
+        )
 
     return team
 
 
 def recommend_replacements(
-    current_team, removed_player, budget_left, position, players, num_replacements=20, team=None, specific_player=None, points_type="total"
+    current_team,
+    removed_player,
+    budget_left,
+    position,
+    players,
+    num_replacements=20,
+    team=None,
+    specific_player=None,
+    points_type="total",
 ):
     potential_replacements = players[
         (players["Name"] != removed_player)
@@ -108,7 +120,9 @@ def recommend_replacements(
         potential_replacements = potential_replacements[potential_replacements["team"].isin(team)]
 
     # Sort by relevant metric
-    potential_replacements = potential_replacements.sort_values(by="Total Points" if points_type == "total" else "Avg", ascending=False)
+    potential_replacements = potential_replacements.sort_values(
+        by="Total Points" if points_type == "total" else "Avg", ascending=False
+    )
 
     # Get the best ones.
     top_replacements = potential_replacements.head(num_replacements)
@@ -139,7 +153,7 @@ def display_team(team):
     average_avg = "{:.2f}".format(average_avg)
     # Add index and display the team.
     for i, player in enumerate(sorted_team):
-        player['Index'] = i
+        player["Index"] = i
     reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "Gp", "$", "Total Points"]
     reordered_data = [[player[col] for col in reordered_columns] for player in sorted_team]
     print(tabulate.tabulate(reordered_data, headers=reordered_columns, tablefmt="simple"))
@@ -158,10 +172,10 @@ def choose_player_to_remove(team):
 
 
 def choose_replacement(replacements):
-    replacements = replacements.to_dict('records')
-    print("\nTop 5 Replacements:")
+    replacements = replacements.to_dict("records")
+    print("\nRecommended Replacements:")
     for i, player in enumerate(replacements):
-        player['Index'] = i
+        player["Index"] = i
     reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "Gp", "$", "Total Points"]
     reordered_data = [[player[col] for col in reordered_columns] for player in replacements]
     print(tabulate.tabulate(reordered_data, headers=reordered_columns, tablefmt="simple"))
@@ -172,7 +186,7 @@ def choose_replacement(replacements):
 def main():
     doc = """
     Usage:
-        fantasy_hockey.py [--must-include=<players>] [--exclude=<players>] [--points-type=<type>] [--minimum-games=<games>] [--budget=<budget>] [--load-team=<team>] [--noise]
+        fantasy_hockey.py [--must-include=<players>] [--exclude=<players>] [--points-type=<type>] [--minimum-games=<games>] [--budget=<budget>] [--load-team=<team>] [--replacements=<number>] [--noise]
 
     Options:
         --must-include=<players>  Comma-separated list of players to include.
@@ -181,6 +195,7 @@ def main():
         --minimum-games=<games>   Minimum number of games played [default: 40].
         --budget=<budget>         Budget for the team [default: 50].
         --load-team=<team>        Load a previously saved team from the supplied file.
+        --replacements=<number>   Number of replacements to recommend [default: 20].
         --noise                   Get spammed with solver output crap.
     """
 
@@ -206,7 +221,7 @@ def main():
     if must_include:
         if not df2.empty:
             df = pd.concat([df, df2])
-        
+
     players = df[["Name", "team", "Pos", "Avg", "$", "Gp"]].copy()
     total_points = round(players["Gp"] * players["Avg"])
     players.loc[:, "Total Points"] = total_points
@@ -239,7 +254,6 @@ def main():
         else:
             print("Let's make some changes to the team!\n")
 
-
         # Choose a player to remove
         removed_player, removed_index = choose_player_to_remove(team)
 
@@ -260,8 +274,18 @@ def main():
         else:
             specific_player = None
 
-        # Recommend 5 replacements
-        replacements = recommend_replacements(team, removed_player["Name"], budget_left, position, players, team=input_team, points_type=points_type, specific_player=specific_player)
+        # Recommend replacements
+        replacements = recommend_replacements(
+            team,
+            removed_player["Name"],
+            budget_left,
+            position,
+            players,
+            num_replacements=int(args["--replacements"]),
+            team=input_team,
+            points_type=points_type,
+            specific_player=specific_player,
+        )
 
         # Do the swap?
         choice = choose_replacement(replacements)
@@ -288,7 +312,6 @@ def main():
             )
             if choice.lower() == "y":
                 positions_needed = {"C": 3, "W": 4, "D": 3, "G": 2}
-                budget = 50
                 must_include = must_include + [replacement["Name"]]
                 print("Optimizing team...")
                 print(f"Must include: {must_include}")
