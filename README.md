@@ -15,7 +15,7 @@ I may add this years stats as the season progresses.
         --minimum-games=<games>   Minimum number of games played [default: 40].
         --budget=<budget>         Budget for the team [default: 50].
         --load-team=<team>        Load a previously saved team from the supplied file.
-        --noise                   Use the default solver instead of the CBC_CMD solver.
+        --noise                   Get spammed with solver output crap.
 ```
 
 Want McDavid and Bobrovsky in your team in your team?
