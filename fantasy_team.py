@@ -1,6 +1,7 @@
 import pandas as pd
 import pulp
 import json
+import tabulate
 from docopt import docopt
 
 
@@ -17,7 +18,7 @@ def load_team_from_file(filename):
         return json.load(f)
 
 
-def select_team(players, budget, positions_needed, must_include=None, exclude_players=None, points_type="total"):
+def select_team(players, budget, positions_needed, must_include=None, exclude_players=None, points_type="total", noise=False):
     # Create optimization problem
     prob = pulp.LpProblem("FantasyHockeyTeam", pulp.LpMaximize)
 
@@ -35,22 +36,34 @@ def select_team(players, budget, positions_needed, must_include=None, exclude_pl
     for position, count in positions_needed.items():
         prob += pulp.lpSum(player_vars[row["Name"]] for _, row in players.iterrows() if row["Pos"] == position) == count
 
+    couldnt_find = []
     # Include specific players
     if must_include:
         for player in must_include:
-            prob += player_vars[player] == 1
-            # Adjust the budget and position needed for included players
-            player_row = players[players["Name"] == player].iloc[0]
-            budget -= player_row["$"]
-            positions_needed[player_row["Pos"]] -= 1
+            try:
+                prob += player_vars[player] == 1
+                # Adjust the budget and position needed for included players
+                player_row = players[players["Name"] == player].iloc[0]
+                budget -= player_row["$"]
+                positions_needed[player_row["Pos"]] -= 1
+            except KeyError:
+                print(f"Player {player} not found in the list of players.")
+                couldnt_find.append(player)
 
     # Exclude specific players
     if exclude_players:
         for player in exclude_players:
-            prob += player_vars[player] == 0
+            try:
+                prob += player_vars[player] == 0
+            except KeyError:
+                print(f"Player {player} not found in the list of players.")
+                couldnt_find.append(player)
 
     # and got for it!
-    prob.solve()
+    if noise:
+        prob.solve()
+    else:
+        prob.solve(pulp.PULP_CBC_CMD(msg=False))
 
     selected_team = []
     for _, row in players.iterrows():
@@ -70,6 +83,12 @@ def select_team(players, budget, positions_needed, must_include=None, exclude_pl
 
     # Sort team by the position order
     team = sorted(selected_team, key=lambda x: position_order[x["Pos"]])
+
+    if couldnt_find:
+        print("****************************************************************************************************")
+        print(f"Could not find the following players: {couldnt_find}")
+        print("Please check the spelling and try again.")
+        print("if they hadn't played the required number of games they won't be included in the list of available players.\n\n")
 
     return team
 
@@ -116,13 +135,17 @@ def display_team(team):
     total_points = sum(player["Total Points"] for player in sorted_team)
     total_cost = sum(player["$"] for player in sorted_team)
     total_cost = "{:.2f}".format(total_cost)
+    average_avg = sum(player["Avg"] for player in sorted_team) / len(sorted_team)
+    average_avg = "{:.2f}".format(average_avg)
+    # Add index and display the team.
     for i, player in enumerate(sorted_team):
-        print(
-            f"{i:2}. {player['Name']:15} - {player['Pos']:1} - {player['team']:3} - {player['Avg']:4} PPG - {player['$']:5} cost - Total Points: {player['Total Points']:6}"
-        )
-
+        player['Index'] = i
+    reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "$", "Total Points"]
+    reordered_data = [[player[col] for col in reordered_columns] for player in sorted_team]
+    print(tabulate.tabulate(reordered_data, headers=reordered_columns, tablefmt="simple"))
     print(f"\nTotal Points: {total_points}")
     print(f"Total Cost: {total_cost}")
+    print(f"Mean average PPG: {average_avg}")
     return sorted_team
 
 
@@ -135,11 +158,13 @@ def choose_player_to_remove(team):
 
 
 def choose_replacement(replacements):
+    replacements = replacements.to_dict('records')
     print("\nTop 5 Replacements:")
-    for i, (_, row) in enumerate(replacements.iterrows()):
-        print(
-            f"{i:2}. {row['Name']:15} - {row['Pos']:1} - {row['team']:3} - {row['Avg']:4} PPG - {row['$']:5} cost - Total Points: {row['Total Points']:6}"
-        )
+    for i, player in enumerate(replacements):
+        player['Index'] = i
+    reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "$", "Total Points"]
+    reordered_data = [[player[col] for col in reordered_columns] for player in replacements]
+    print(tabulate.tabulate(reordered_data, headers=reordered_columns, tablefmt="simple"))
     choice = input("\nEnter the number of the replacement player (or type 'r' to revert): ")
     return choice
 
@@ -147,7 +172,7 @@ def choose_replacement(replacements):
 def main():
     doc = """
     Usage:
-        fantasy_hockey.py [--must-include=<players>] [--exclude=<players>] [--points-type=<type>] [--minimum-games=<games>] [--budget=<budget>] [--load-team=<team>]
+        fantasy_hockey.py [--must-include=<players>] [--exclude=<players>] [--points-type=<type>] [--minimum-games=<games>] [--budget=<budget>] [--load-team=<team>] [--noise]
 
     Options:
         --must-include=<players>  Comma-separated list of players to include.
@@ -156,6 +181,7 @@ def main():
         --minimum-games=<games>   Minimum number of games played [default: 40].
         --budget=<budget>         Budget for the team [default: 50].
         --load-team=<team>        Load a previously saved team from the supplied file.
+        --noise                   Use the default solver instead of the CBC_CMD solver.
     """
 
     args = docopt(doc)
@@ -165,14 +191,25 @@ def main():
     points_type = args["--points-type"]
     minimum_games = int(args["--minimum-games"])
     budget = int(args["--budget"])
+    noise = args["--noise"]
 
     file_path = "data/updated_players.csv"
     df = pd.read_csv(file_path)
+    # If a required player hasn't played enough games then we'll need to save and add back.
+    if must_include:
+        df2 = pd.DataFrame()
+        for player in must_include:
+            if df[df["Name"] == player]["Gp"].values[0] < minimum_games:
+                df2 = df[df["Name"] == player]
 
     df = df[df["Gp"] >= minimum_games]
-    players = df[["Name", "team", "Pos", "Avg", "$", "Gp"]]
+    if must_include:
+        if not df2.empty:
+            df = pd.concat([df, df2])
+        
+    players = df[["Name", "team", "Pos", "Avg", "$", "Gp"]].copy()
     total_points = round(players["Gp"] * players["Avg"])
-    players["Total Points"] = total_points
+    players.loc[:, "Total Points"] = total_points
     positions_needed = {"C": 3, "W": 4, "D": 3, "G": 2}
 
     if args["--load-team"]:
@@ -189,6 +226,7 @@ def main():
             must_include=must_include,
             exclude_players=exclude_players,
             points_type=points_type,
+            noise=noise,
         )
 
         display_team(team)
@@ -262,6 +300,7 @@ def main():
                     must_include=must_include,
                     exclude_players=exclude_players + [removed_player],
                     points_type=points_type,
+                    noise=noise,
                 )
             else:
                 print("Team not optimized.")
