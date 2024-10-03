@@ -19,7 +19,7 @@ I may add this years stats as the season progresses.
         --noise                   Get spammed with solver output crap.
 ```
 
-Want McDavid and Bobrovsky in your team in your team?
+Want McDavid and Bobrovsky in your team?
 ```
 python3 fantasy_team.py --must-include='S Bobrovsky,C McDavid'
 ```
