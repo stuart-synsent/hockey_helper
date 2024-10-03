@@ -2,7 +2,7 @@ Suggestions based on last years stats as to what combination gives the best poin
 
 I may add this years stats as the season progresses.
 
-I don't care if it does work for you.
+*** I don't care if it doesn't work for you.
 
 ```
     Usage:
