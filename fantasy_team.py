@@ -140,7 +140,7 @@ def display_team(team):
     # Add index and display the team.
     for i, player in enumerate(sorted_team):
         player['Index'] = i
-    reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "$", "Total Points"]
+    reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "Gp", "$", "Total Points"]
     reordered_data = [[player[col] for col in reordered_columns] for player in sorted_team]
     print(tabulate.tabulate(reordered_data, headers=reordered_columns, tablefmt="simple"))
     print(f"\nTotal Points: {total_points}")
@@ -162,7 +162,7 @@ def choose_replacement(replacements):
     print("\nTop 5 Replacements:")
     for i, player in enumerate(replacements):
         player['Index'] = i
-    reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "$", "Total Points"]
+    reordered_columns = ["Index", "Name", "Pos", "team", "Avg", "Gp", "$", "Total Points"]
     reordered_data = [[player[col] for col in reordered_columns] for player in replacements]
     print(tabulate.tabulate(reordered_data, headers=reordered_columns, tablefmt="simple"))
     choice = input("\nEnter the number of the replacement player (or type 'r' to revert): ")
