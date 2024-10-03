@@ -59,7 +59,7 @@ Do you want to filter new players by team or comma separated list of teams? (y/n
 Enter the teams you want to filter by (E.G. NYR,SEA,VAN): NYR,BOS,SEA,EDM
 Do you want to include a specific player? (y/n): n
 
-Top 5 Replacements:
+Recommended Replacements:
   Index  Name          Pos    team      Avg    Gp     $    Total Points
 -------  ------------  -----  ------  -----  ----  ----  --------------
       0  C Coyle       C      BOS      29.9    95  4.83            2840
