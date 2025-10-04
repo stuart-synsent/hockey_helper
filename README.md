@@ -21,95 +21,98 @@ I may add this years stats as the season progresses.
 
 Want McDavid and Bobrovsky in your team?
 ```
-python3 fantasy_team.py --must-include='S Bobrovsky,C McDavid'
+python3 fantasy_team.py --must-include="Sergei Bobrovsky,Connor McDavid"
 ```
 
-Don't want Reinhart in your team and want it to select your team on average points per game and played at least 30 last season:
+Don't want Sam Reinhart and Jack Hughes in your team and want it to select your team on average points per game and played at least 30 last season:
 ```
-python3 fantasy_team.py --exclude='S Reinhart' --minimum-games=30 --points-type=average
+python3 fantasy_team.py --exclude="Sam Reinhart,Jack Hughes" --minimum-games=30 --points-type=average
 ```
 
 ```
-(hockey) ~/hockey_helper$ python3 fantasy_team.py --exclude='S Reinhart' --minimum-games=30 --points-type=average
+(hockey) ~/hockey_helper$ python3 fantasy_team.py --exclude='Sam Reinhart,Jack Hughes' --minimum-games=30 --points-type=average
 Current Team:
-  Index  Name        Pos    team      Avg    Gp     $    Total Points
--------  ----------  -----  ------  -----  ----  ----  --------------
-      0  J Hughes    C      NJD      42.5    62  5.48            2635
-      1  S Pinto     C      OTT      30.7    41  3.81            1259
-      2  T Zegras    C      ANA      22.3    31  2.65             691
-      3  F Vatrano   W      ANA      36.2    82  4.59            2968
-      4  B Rust      W      PIT      36.6    62  4.71            2269
-      5  P Kane      W      DET      34      50  4.28            1700
-      6  D Guenther  W      UTA      32.8    45  4.1             1476
-      7  R Gudas     D      ANA      28.3    66  3.63            1868
-      8  T Chabot    D      OTT      25.3    51  3.2             1290
-      9  A Xhekaj    D      MTL      22.8    44  2.85            1003
-     10  I Sorokin   G      NYI      43.5    57  5.26            2480
-     11  J Hofer     G      STL      44.6    30  5.43            1338
+  Index  name             position    team      average    matches    price    points
+-------  ---------------  ----------  ------  ---------  ---------  -------  --------
+      0  Sean Monahan     C           CBJ       41.2037         54  5470000      2225
+      1  Sidney Crosby    C           PIT       40.725          80  5570000      3258
+      2  Mathew Barzal    C           NYI       29.7333         30  3750000       892
+      3  Bryan Rust       W           PIT       31.8732         71  4280000      2263
+      4  Chris Kreider    W           NYR       22.6765         68  2950000      1542
+      5  Adam Klapka      W           CAL       21.2581         31  2610000       659
+      6  Yegor Chinakhov  W           CBJ       20.5667         30  2590000       617
+      7  Zach Werenski    D           CBJ       41.3827         81  5720000      3352
+      8  Quinn Hughes     D           VAN       39.3971         68  5370000      2679
+      9  Sean Durzi       D           UTA       19.6667         30  2480000       590
+     10  Dan Vladar       G           CAL       36.1333         30  4290000      1084
+     11  Jake Allen       G           NJD       38.8387         31  4910000      1204
 
-Total Points: 20977.0
-Total Cost: 49.99
-Mean average PPG: 33.30
+points: 20365.0
+Total Cost: 49990000.00
+Mean average PPG: 31.95
 Do you want to make changes to the team? (y/n): y
 Let's make some changes to the team!
 
-Enter the number of the player you want to remove: 0
-Removing J Hughes from the team.
+Current Team:
+  Index  name             position    team      average    matches    price    points
+-------  ---------------  ----------  ------  ---------  ---------  -------  --------
+      0  Sean Monahan     C           CBJ       41.2037         54  5470000      2225
+      1  Sidney Crosby    C           PIT       40.725          80  5570000      3258
+      2  Mathew Barzal    C           NYI       29.7333         30  3750000       892
+      3  Bryan Rust       W           PIT       31.8732         71  4280000      2263
+      4  Chris Kreider    W           NYR       22.6765         68  2950000      1542
+      5  Adam Klapka      W           CAL       21.2581         31  2610000       659
+      6  Yegor Chinakhov  W           CBJ       20.5667         30  2590000       617
+      7  Zach Werenski    D           CBJ       41.3827         81  5720000      3352
+      8  Quinn Hughes     D           VAN       39.3971         68  5370000      2679
+      9  Sean Durzi       D           UTA       19.6667         30  2480000       590
+     10  Dan Vladar       G           CAL       36.1333         30  4290000      1084
+     11  Jake Allen       G           NJD       38.8387         31  4910000      1204
+
+points: 20365.0
+Total Cost: 49990000.00
+Mean average PPG: 31.95
+Enter the number of the player you want to remove: 11
+Removing Jake Allen from the team.
 Do you want to filter new players by team or comma separated list of teams? (y/n): y
-Enter the teams you want to filter by (E.G. NYR,SEA,VAN): NYR,BOS,SEA,EDM
+Enter the teams you want to filter by (E.G. NYR,SEA,VAN): WSH,FLA,NYI
 Do you want to include a specific player? (y/n): n
 
 Recommended Replacements:
-  Index  Name          Pos    team      Avg    Gp     $    Total Points
--------  ------------  -----  ------  -----  ----  ----  --------------
-      0  C Coyle       C      BOS      29.9    95  4.83            2840
-      1  P Zacha       C      BOS      29.2    91  4.64            2657
-      2  A Henrique    C      EDM      27.4    99  4.53            2713
-      3  E Lindholm    C      BOS      26.8    88  4.32            2358
-      4  J Skinner     C      EDM      25.9    74  3.4             1917
-      5  T Frederic    C      BOS      25.8    95  4.19            2451
-      6  M Geekie      C      BOS      23.5    89  3.75            2092
-      7  C Stephenson  C      SEA      22.7    82  3.39            1861
-      8  Y Gourde      C      SEA      20.7    80  2.55            1656
-      9  M Beniers     C      SEA      18.2    77  2.38            1401
-     10  J Schwartz    C      SEA      18.2    62  2.36            1128
-     11  M Poitras     C      BOS      18      33  2.2              594
-     12  S Carrick     C      NYR      15      87  2.36            1305
-     13  J Brodzinski  C      NYR      13.5    60  1.81             810
-     14  M Kastelic    C      BOS      12.8    63  1.65             806
-     15  M Janmark     C      EDM      12.3    96  1.99            1181
-     16  J Beecher     C      BOS      11.1    64  1.71             710
-     17  V Lettieri    C      BOS      10.8    46  1.35             497
-     18  T Pitlick     C      NYR       8.2    34  1.01             279
-     19  D Ryan        C      EDM       7.6    89  1.25             676
+  Index  name              position    team      average    matches    price    points
+-------  ----------------  ----------  ------  ---------  ---------  -------  --------
+      0  Charlie Lindgren  G           WSH       33.1            40  4260000      1324
+      1  David Rittich     G           NYI       26.4118         34  3560000       898
 
 Enter the number of the replacement player (or type 'r' to revert): 0
-Adding C Coyle to the team.
-Removed J Hughes from the team.
+Adding Charlie Lindgren to the team.
+Removed Jake Allen from the team.
 
-Added C Coyle to the team.
+Added Charlie Lindgren to the team.
 Do you want me to optimize team after this change? This player will be in the must include list along with any others passed as cli args.
-It will not put the removed player back in even if it is the best team. (y/n): n
-Team not optimized.
+It will not put the removed player back in even if it is the best team. (y/n): y
+Optimizing team...
+Must include: ['Charlie Lindgren']
+Exclude players: ['Sam Reinhart', 'Jack Hughes', 'Jake Allen']
 Current Team:
-  Index  Name        Pos    team      Avg    Gp     $    Total Points
--------  ----------  -----  ------  -----  ----  ----  --------------
-      0  C Coyle     C      BOS      29.9    95  4.83            2840
-      1  S Pinto     C      OTT      30.7    41  3.81            1259
-      2  T Zegras    C      ANA      22.3    31  2.65             691
-      3  F Vatrano   W      ANA      36.2    82  4.59            2968
-      4  B Rust      W      PIT      36.6    62  4.71            2269
-      5  P Kane      W      DET      34      50  4.28            1700
-      6  D Guenther  W      UTA      32.8    45  4.1             1476
-      7  R Gudas     D      ANA      28.3    66  3.63            1868
-      8  T Chabot    D      OTT      25.3    51  3.2             1290
-      9  A Xhekaj    D      MTL      22.8    44  2.85            1003
-     10  I Sorokin   G      NYI      43.5    57  5.26            2480
-     11  J Hofer     G      STL      44.6    30  5.43            1338
+  Index  name              position    team      average    matches    price    points
+-------  ----------------  ----------  ------  ---------  ---------  -------  --------
+      0  Sean Monahan      C           CBJ       41.2037         54  5470000      2225
+      1  Sidney Crosby     C           PIT       40.725          80  5570000      3258
+      2  Mathew Barzal     C           NYI       29.7333         30  3750000       892
+      3  Alex Tuch         W           BUF       36.378          82  4990000      2983
+      4  Bryan Rust        W           PIT       31.8732         71  4280000      2263
+      5  Adam Klapka       W           CAL       21.2581         31  2610000       659
+      6  Yegor Chinakhov   W           CBJ       20.5667         30  2590000       617
+      7  Charlie McAvoy    D           BOS       26.46           50  3480000      1323
+      8  Roman Josi        D           NSH       25.1698         53  3330000      1334
+      9  Quinn Hughes      D           VAN       39.3971         68  5370000      2679
+     10  Dan Vladar        G           CAL       36.1333         30  4290000      1084
+     11  Charlie Lindgren  G           WSH       33.1            40  4260000      1324
 
-Total Points: 21182.0
-Total Cost: 49.34
-Mean average PPG: 32.25
+points: 20641.0
+Total Cost: 49990000.00
+Mean average PPG: 31.83
 Do you want to make changes to the team? (y/n):
 ```
 
